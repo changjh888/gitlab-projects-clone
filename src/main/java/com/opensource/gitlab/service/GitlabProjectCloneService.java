@@ -11,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -52,6 +53,9 @@ public class GitlabProjectCloneService {
         }
         for (GitGroup group : groups) {
             List<GitProject> projects = getProjectsByGroup(group.getPath());
+            if (ObjectUtils.isEmpty(projects)) {
+                continue;
+            }
             for (GitProject project : projects) {
                 String lastActivityBranchName = getLastActivityBranchName(project.getId());
                 if (StringUtils.isEmpty(lastActivityBranchName)) {
@@ -95,6 +99,7 @@ public class GitlabProjectCloneService {
      */
     private List<GitProject> getProjectsByGroup(String group) {
         String url = gitlabUrl + "/api/v4/groups/{group}/projects?per_page={per_page}&private_token={private_token}";
+        System.out.println(group);
         Map<String, String> uriVariables = new HashMap<>();
         uriVariables.put("group", group);
         uriVariables.put("per_page", "100");
